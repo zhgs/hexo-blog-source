@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Thrift java入门 | The road of God</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="简介Thrift是一个软件框架，用来进行可扩展且跨语言的服务的开发。它结合了功能强大的软件堆栈和代码生成引擎，以构建在 C++, Java, Go,Python, PHP, Ruby, Erlang, Perl, Haskell, C#, Cocoa, JavaScript, Node.js, Smalltalk, and OCaml 这些编程语言间无缝结合的、高效的服务。Thrift最初由fac">
+<meta name="keywords" content="技术">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Thrift java入门">
+<meta property="og:url" content="http://zhgs.github.io/2017/07/17/Thrift java入门/index.html">
+<meta property="og:site_name" content="The road of God">
+<meta property="og:description" content="简介Thrift是一个软件框架，用来进行可扩展且跨语言的服务的开发。它结合了功能强大的软件堆栈和代码生成引擎，以构建在 C++, Java, Go,Python, PHP, Ruby, Erlang, Perl, Haskell, C#, Cocoa, JavaScript, Node.js, Smalltalk, and OCaml 这些编程语言间无缝结合的、高效的服务。Thrift最初由fac">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-07-18T05:51:33.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Thrift java入门">
+<meta name="twitter:description" content="简介Thrift是一个软件框架，用来进行可扩展且跨语言的服务的开发。它结合了功能强大的软件堆栈和代码生成引擎，以构建在 C++, Java, Go,Python, PHP, Ruby, Erlang, Perl, Haskell, C#, Cocoa, JavaScript, Node.js, Smalltalk, and OCaml 这些编程语言间无缝结合的、高效的服务。Thrift最初由fac">
+  
+  
+    <link rel="icon" href="/images/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/typing.css">
+  <link rel="stylesheet" href="/css/donate.css">
+  
+</head>
+
+  
+    
+      <body>
+    
+  
+      <div id="container" class="container">
+        <article id="post-Thrift java入门" class="article article-type-post" itemscope itemprop="blogPost">
+  <header id="header" class="header">
+    <div class="mobile-nav">
+      <h1 class="nickname">GS·Z&#39;s Blog</h1>
+      <a id="menu">
+        &#9776; Menu
+      </a>
+    </div>
+    
+        <nav id="main-nav" class="main-nav nav-left">
+    
+    
+      <a class="main-nav-link" href="/">Home</a>
+    
+      <a class="main-nav-link" href="/wiki">wiki</a>
+    
+      <a class="main-nav-link" href="/archives">Archives</a>
+    
+      <a class="main-nav-link" href="/about">About</a>
+    
+  </nav>
+</header>
+
+  <hr/>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Thrift java入门
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry typo" itemprop="articleBody">
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>Thrift是一个软件框架，用来进行可扩展且跨语言的服务的开发。它结合了功能强大的软件堆栈和代码生成引擎，以构建在 C++, Java, Go,Python, PHP, Ruby, Erlang, Perl, Haskell, C#, Cocoa, JavaScript, Node.js, Smalltalk, and OCaml 这些编程语言间无缝结合的、高效的服务。Thrift最初由facebook开发，07年四月开放源码，08年5月进入apache孵化器。thrift允许你定义一个简单的定义文件中的数据类型和服务接口。以作为输入文件，编译器生成代码用来方便地生成RPC客户端和服务器通信的无缝跨编程语言。<br><br>本文主要介绍 Thrift 开发流程，并给出 Java 开发 Thrfit 应用的实例。</p>
+<p>本文的开发环境为： macOS Sierra 10.12.6</p>
+<h1 id="Thrift开发概述"><a href="#Thrift开发概述" class="headerlink" title="Thrift开发概述"></a>Thrift开发概述</h1><p>Thrift用接口描述语言（Interface description language，IDL）来描述不同编程语言之间的接口。Thrift开发环境包含两个部分：Thrift编译器和语言相关的库。Thrift编译器用来根据IDL生成语言相关的接口代码框架，我们可以使用这个框架很方便的实现客户端和服务器的代码。语言相关的库则封装了不同编程语言之间通信的内部实现，让我们解放双手着重处理业务逻辑。根据编程语言的不同，构建相关库的方法也不同。</p>
+<h2 id="开发前的准备"><a href="#开发前的准备" class="headerlink" title="开发前的准备"></a>开发前的准备</h2><ul>
+<li>在<a href="http://thrift.apache.org/download" target="_blank" rel="noopener">Thrift官方下载页面</a>下载Thrift编译器，如果希望从源代码编译Thrift编译器，则跳过这一步。官网只提供了windows下的编译器，thrift-0.10.0.exe，使用非windows跳过此步骤，mac系统请参考<a href="#Mac下安装Thrift">Mac下安装Thrift</a>。</li>
+<li>在<a href="http://thrift.apache.org/download" target="_blank" rel="noopener">Thrift官方下载页面</a>下载Thrift源代码。源代码中包含了编译器的代码和语言相关的库的代码。本例下载的源代码为：thrift-0.10.0.tar.gz 。下载后解压到合适的目录。如果希望从源代码编译Thrift编译器，请参阅Thrift源代码根目录下的README.md。<a href="http://thrift.apache.org/docs/BuildingFromSource" target="_blank" rel="noopener">官网教程 Building from source</a></li>
+<li>构建语言相关的库（如果需要的话）。</li>
+</ul>
+<p><span id="Mac下安装Thrift"></span></p>
+<h2 id="Mac下安装Thrift"><a href="#Mac下安装Thrift" class="headerlink" title="Mac下安装Thrift"></a>Mac下安装Thrift</h2><p>在mac下安装软件跟Linux安装比较类似，在安装Thrift之前需要先安装依赖。</p>
+<h3 id="安装BOOST"><a href="#安装BOOST" class="headerlink" title="安装BOOST"></a>安装BOOST</h3><p>下载：<a href="http://www.boost.org/" target="_blank" rel="noopener">http://www.boost.org/</a>    （boost_1_57_0.tar.gz）<br><br>拷贝到/usr/local目录下并解压：</p>
+<pre><code>tar -zvxf boost_1_57_0.tar.gz
+</code></pre><p>切换目录：</p>
+<pre><code>cd boost_1_57_0
+</code></pre><p>执行命令：</p>
+<pre><code>./bootstrap.sh —prefix=PATH_TO_BOOST  
+sudo ./b2 threading=multi address-model=64 variant=release stage install
+</code></pre><p>./bootstrap.sh该命令用于生成bjam可执行文件，这个东西就是用来编译boost库<br></p>
+<h3 id="安装-libevent"><a href="#安装-libevent" class="headerlink" title="安装 libevent"></a>安装 libevent</h3><p>下载：<a href="http://libevent.org/" target="_blank" rel="noopener">http://libevent.org/</a>  （libevent-2.0.21-stable.tar.gz）</p>
+<p>拷贝到/usr/local目录下并解压：</p>
+<pre><code>tar -zvxf libevent-2.0.21-stable.tar.gz  
+</code></pre><p>切换目录：</p>
+<pre><code>cd libevent-2.0.21-stable    
+</code></pre><p>执行命令：</p>
+<pre><code>./configure —-prefix=/usr/local  
+make  
+sudo make install  
+</code></pre><p>执行make时报如下错误,需要安装openssl； 这是由于mac默认安装了openssl但是没有安装对应的include头文件和lib库，故这里使用homebrew（参考<a href="https://brew.sh/index_zh-cn.html）来安装最新的openssl" target="_blank" rel="noopener">https://brew.sh/index_zh-cn.html）来安装最新的openssl</a></p>
+<pre><code>fatal error: &apos;openssl/bio.h&apos; file not found
+</code></pre><p>使用homebrew 安装</p>
+<pre><code>brew install openssl
+</code></pre><p>安装后，连接到libevent目录下</p>
+<pre><code>ln -s /usr/local/Cellar/openssl/1.0.2o_2/include/openssl /usr/local/libevent-2.1.8-stable/include
+</code></pre><p>成功后再执行 make和sudo make install命令就不报错了</p>
+<h3 id="安装-Apache-Thrift"><a href="#安装-Apache-Thrift" class="headerlink" title="安装 Apache Thrift"></a>安装 Apache Thrift</h3><p>下载：<a href="http://thrift.apache.org/" target="_blank" rel="noopener">http://thrift.apache.org/</a>  （thrift-0.8.0.tar.gz）</p>
+<p>解压：</p>
+<pre><code>tar -zvxf thrift-0.8.0.tar.gz
+</code></pre><p>切换目录：</p>
+<pre><code>cd thrift-0.8.0.tar.gz  
+</code></pre><p>编译命令：</p>
+<pre><code>./configure --prefix=/usr/local/ --with-boost=/usr/local --with-libevent=/usr/local
+</code></pre><p>安装命令：</p>
+<pre><code>sudo make install
+</code></pre><p>可以查看安装是否成功和版本</p>
+<pre><code>thrift －version
+</code></pre><p>注意版本选择：选择Thrift 0.8.0版本，选择高的版本会报bison版本低的错误，在安装0.8.0时也报了一些错误，不过不影响正常使用</p>
+<p>最新版0.11.0 在mac中如果用上面步骤安装不成功，可以使用如下方式安装</p>
+<pre><code>brew install thrift
+</code></pre><h2 id="开发流程"><a href="#开发流程" class="headerlink" title="开发流程"></a>开发流程</h2><ul>
+<li>使用IDL定义服务器和客户端之间的接口。利用Thrift编译器编译该IDL文件，生成语言相关的代码框架。</li>
+<li>利用已经生成的代码框架，实现客户端和服务器的业务逻辑。</li>
+</ul>
+<h2 id="构建语言相关的库"><a href="#构建语言相关的库" class="headerlink" title="构建语言相关的库"></a>构建语言相关的库</h2><p>语言相关的库代码在Thrift源代码的lib下，每种语言一个目录，比如C++就在cpp目录下。在每种语言的目录下，都有一个README.md用来描述该语言库的构建和使用方法。语言相关的库根据编程语言的不同，构建的方式也不同。如果是编译型语言的话，则需要编译。本篇只提供java案例</p>
+<p><span id="构建Java库"></span></p>
+<h2 id="构建Java库"><a href="#构建Java库" class="headerlink" title="构建Java库"></a>构建Java库</h2><p>本例构建环境：<br></p>
+<pre><code>java version &quot;1.8.0_131&quot;
+Apache Ant(TM) version 1.10.5
+</code></pre><p>在编译之前请确保正确安装和配置了 JDK 和 Ant。</p>
+<p>Java库源代码目录为：[Thrift源代码目录]\lib\java。Java库需要使用Ant 来编译。管理员方式打开命令行，切换到Java库元源代码目录，执行：<br></p>
+<blockquote>
+<p>ant</p>
+</blockquote>
+<p>编译后会在 build 子目录下找到 libthrift-0.10.0.jar，这就是我们需要的开发包。在 build/lib 下是 libthrift-0.10.0.jar 的依赖包。</p>
+<h1 id="使用IDL定义接口"><a href="#使用IDL定义接口" class="headerlink" title="使用IDL定义接口"></a>使用IDL定义接口</h1><p>Thrift 中 IDL 文件以 .thrift 为后缀。该文件用来描述服务器与客户端之间的接口。在编写 thrift 文件之前，还需要了解一下用以描述接口的语法。</p>
+<h2 id="注释"><a href="#注释" class="headerlink" title="注释"></a>注释</h2><p>Thrift 支持三种注释：<br><br>脚本注释，用 # 表示，例如：<br></p>
+<blockquote>
+<p>#这是一个注释</p>
+</blockquote>
+<p>块注释，用 /<em> 和 </em>/ 表示。<br></p>
+<blockquote>
+</blockquote>
+<p>/*<br></p>
+<ul>
+<li>这是一个注释<br><br>*/<br></li>
+</ul>
+<p>单行注释，用 // 表示。<br></p>
+<blockquote>
+<p>// 这是一个注释</p>
+</blockquote>
+<h2 id="基本类型"><a href="#基本类型" class="headerlink" title="基本类型"></a>基本类型</h2><table>
+<thead>
+<tr>
+<th style="text-align:center">类型</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">bool</td>
+<td style="text-align:center">布尔类型，1byte</td>
+</tr>
+<tr>
+<td style="text-align:center">i8</td>
+<td style="text-align:center">有符号整形，8bits，即byte</td>
+</tr>
+<tr>
+<td style="text-align:center">i16</td>
+<td style="text-align:center">有符号整型，16bits</td>
+</tr>
+<tr>
+<td style="text-align:center">i32</td>
+<td style="text-align:center">有符号整型，32bits</td>
+</tr>
+<tr>
+<td style="text-align:center">i64</td>
+<td style="text-align:center">有符号整型，64bits</td>
+</tr>
+<tr>
+<td style="text-align:center">double</td>
+<td style="text-align:center">浮点型，64bits</td>
+</tr>
+<tr>
+<td style="text-align:center">string</td>
+<td style="text-align:center">字符串</td>
+</tr>
+<tr>
+<td style="text-align:center">binary</td>
+<td style="text-align:center">Blob，byte数组</td>
+</tr>
+<tr>
+<td style="text-align:center">map&lt;t1,t2&gt;</td>
+<td style="text-align:center">map</td>
+</tr>
+<tr>
+<td style="text-align:center">list<t1></t1></td>
+<td style="text-align:center">有序列表</td>
+</tr>
+<tr>
+<td style="text-align:center">set<t1></t1></td>
+<td style="text-align:center">无重复元素的容器</td>
+</tr>
+</tbody>
+</table>
+<h2 id="常量"><a href="#常量" class="headerlink" title="常量"></a>常量</h2><p>常量用const表示：</p>
+<pre><code>const i32 MATHPATH = 256
+</code></pre><h2 id="枚举"><a href="#枚举" class="headerlink" title="枚举"></a>枚举</h2><p>用 enum 定义枚举。枚举类型是32位的整数。值是可选的，从1开始。</p>
+<pre><code>enum Operation {
+    ADD = 1,
+    SUBTRACT = 2,
+    MULTIPLY = 3,
+    DIVIDE = 4
+}
+</code></pre><h2 id="结构体"><a href="#结构体" class="headerlink" title="结构体"></a>结构体</h2><p>即java中的bean, 结构体用 struct 表示，是基本的复合数据类型，由若干字段组成。每个字段由整型ID，类型，名称和可选的默认值组成。字段可以声明为 optional，表示如果没有被设置，则不进行序列化。</p>
+<pre><code>struct Work {
+    1: i32 num1 = 0,
+    2: i32 num2,
+    3: Operation op,
+    4: optional string comment,
+}
+</code></pre><p>结构体也可以定义为异常：</p>
+<pre><code>exception InvalidOperation {
+    1: i32 whatOp,
+    2: string why
+}
+</code></pre><h2 id="服务"><a href="#服务" class="headerlink" title="服务"></a>服务</h2><p>服务类似 class， 用 service 关键字定义。服务可以用 extends 关键字继承其他服务。service 由一系列方法组成。方法由返回值，参数列表和一个可选的异常列表组成。参数列表和异常列表的语法和结构体的语法一样。</p>
+<pre><code>service Calculator extends shared.SharedService {
+
+   void ping(),
+
+   i32 add(1:i32 num1, 2:i32 num2),
+
+   i32 calculate(1:i32 logid, 2:Work w) throws (1:InvalidOperation ouch),
+
+   /**
+    * oneway 表示客户端发送请求后不需要响应。onway 方法返回值必须是void 
+    */
+   oneway void zip()
+
+}
+</code></pre><h2 id="include-指令"><a href="#include-指令" class="headerlink" title="include 指令"></a>include 指令</h2><p>用 include 指令包含其他 thrift 文件：</p>
+<pre><code>include &quot;another.thrift&quot;
+</code></pre><h2 id="namespace-指令"><a href="#namespace-指令" class="headerlink" title="namespace 指令"></a>namespace 指令</h2><p>namespace 指令指定语言相关的名称空间：</p>
+<pre><code>namespace cpp nscpp # 指定C++的名称空间为 nscpp
+namespace java nsjava # 指定Java的包为 nsjava
+</code></pre><h2 id="typedef-指令"><a href="#typedef-指令" class="headerlink" title="typedef 指令"></a>typedef 指令</h2><p>typedef 指令用来指定类型别名，和 C 一样。</p>
+<pre><code>typedef i32 MyInteger
+</code></pre><h1 id="编译IDL文件"><a href="#编译IDL文件" class="headerlink" title="编译IDL文件"></a>编译IDL文件</h1><p>Thrift 编译器的用法如下：</p>
+<pre><code>thrift [options] file
+</code></pre><p>可以通过 –help 选项来了解具体用法：</p>
+<pre><code>thrift --help
+</code></pre><p>通常用以下命令将IDL编译成语言相关的接口代码，-r（recurse的首字母）表示递归生成被包含的文件，–gen后面接生成的语言。</p>
+<pre><code>thrift-0.10.0.exe -r --gen java ICalc.thrift
+</code></pre><h1 id="实例详解"><a href="#实例详解" class="headerlink" title="实例详解"></a>实例详解</h1><p>下面分别给出 JAVA开发 Thrift 应用的实例。需要注意的是某种语言开发的服务器和任何语言开发的客户端都可以实现互联，这正是 Thrift 的特性之一。</p>
+<h2 id="Java开发实例"><a href="#Java开发实例" class="headerlink" title="Java开发实例"></a>Java开发实例</h2><p>本例开发环境：</p>
+<pre><code>java version &quot;1.8.0_131&quot;
+Apache Ant(TM) version 1.10.1
+</code></pre><p>在开发之前应确保 Java 的 Thrift 包已经编译好，如果还没有编译好，请参见<a href="#构建Java库">构建Java库</a>。</p>
+<p>首先建立如下所示的目录结构。其中 com/cynhard/thrift/test 是包的路径，可以根据自己的域名进行调整。iface, server, client三个目录分别用来存放接口，服务器，客户端的代码。build.xml是Ant构建文件。</p>
+<pre><code>[somewhere]
+    |-calc/
+        |-com/
+        |   |-cynhard/
+        |       |-thrift/
+        |           |-test/
+        |               |-iface/  -- 接口文件目录
+        |               |   |-ICalc.thrift  -- 接口文件
+        |               |-server/ -- 服务器目录
+        |               |   |-Server.java  -- 服务器实现文件
+        |               |-client/ -- 客户端目录
+        |                   |-Client.java  -- 客户端实现文件
+        |-build.xml  -- ant 文件
+</code></pre><h2 id="定义接口"><a href="#定义接口" class="headerlink" title="定义接口"></a>定义接口</h2><p>打开 ICalc.thrift 文件，编写接口代码如下。注意包名应该根据自己的实际路径调整。</p>
+<p>ICalc.thrift</p>
+<pre><code>namespace java com.cynhard.thrift.test.iface
+
+service ICalc {
+    i32 add(1:i32 num1, 2:i32 num2),
+}
+</code></pre><h2 id="实现服务器"><a href="#实现服务器" class="headerlink" title="实现服务器"></a>实现服务器</h2><p>打开 Server.java，编写服务器代码如下。注意包名应该根据自己的实际路径调整。</p>
+<p>Server.java<br>    package com.cynhard.thrift.test.server;</p>
+<pre><code>import org.apache.thrift.TException;
+import org.apache.thrift.server.TServer;
+import org.apache.thrift.server.TServer.Args;
+import org.apache.thrift.server.TSimpleServer;
+import org.apache.thrift.transport.TServerSocket;
+import org.apache.thrift.transport.TServerTransport;
+import com.cynhard.thrift.test.iface.ICalc;
+
+public class Server {
+
+    static class CalcHandler implements ICalc.Iface {
+        @Override
+        public int add(int num1, int num2) throws TException {
+            return num1 + num2;
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            CalcHandler handler = new CalcHandler();
+            ICalc.Processor processor = new ICalc.Processor(handler);
+            TServerTransport serverTransport = new TServerSocket(9090);
+            TServer server = new TSimpleServer(new Args(serverTransport).processor(processor));
+
+            System.out.println(&quot;Starting the server...&quot;);
+            server.serve(); 
+       } catch (Exception e) { 
+           e.printStackTrace(); 
+       } 
+    }
+}
+</code></pre><h2 id="实现客户端"><a href="#实现客户端" class="headerlink" title="实现客户端"></a>实现客户端</h2><p>打开 Client.java，编写客户端代码如下。注意包名应该根据自己的实际路径调整。</p>
+<p>Client.java</p>
+<pre><code>package com.cynhard.thrift.test.client;
+
+import org.apache.thrift.TException;
+import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TSocket;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import com.cynhard.thrift.test.iface.ICalc;
+
+public class Client {
+    public static void main(String[] args) {
+        try {
+            TTransport transport = new TSocket(&quot;localhost&quot;, 9090);
+            transport.open();
+
+            TProtocol protocol = new TBinaryProtocol(transport);
+            ICalc.Client client = new ICalc.Client(protocol);
+            System.out.println(client.add(1, 2));
+
+            transport.close();
+        } catch (TException e) {
+            e.printStackTrace();
+        }
+    }
+}
+</code></pre><h2 id="构建工程"><a href="#构建工程" class="headerlink" title="构建工程"></a>构建工程</h2><p>打开 build.xml，编写构建配置如下。注意路径属性需要根据实际路径进行修改。</p>
+<p>build.xml</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+</code></pre><project name="calc" basedir="." default="build"><br><br>    <property name="thrift.lib.dir" value="/Users/zhouguangsheng/project/study/Thrift/thrift-0.11.0/lib/java/build"><br>    <property name="thrift.compiler.dir" value="/Users/zhouguangsheng/project/study/Thrift/thrift-0.11.0/lib/java/build"><br>    <property name="interface.dir" value="${basedir}\com\cynhard\thrift\test\iface"><br><br>    <path id="master-classpath"></path><br>        <fileset dir="${thrift.lib.dir}"><br>            <include name="**\*.jar"><br>        </include></fileset><br>        <pathelement path="."><br>    <br><br>    <target name="build" description="Compile Calc"><br>        <!-- 如果单独编译thrift文件，注释下面exec这段 --><br>        <exec executable="${thrift.compiler.dir}/libthrift-0.11.0.jar"><br>            <arg line="--gen java -out ${basedir} ${interface.dir}\ICalc.thrift"><br>        </arg></exec><br>        <javac><br>            <src path="."><br>            <classpath refid="master-classpath"><br>        </classpath></src></javac><br>    </target><br><br>    <target name="run_server" description="Run server"><br>        <java fork="true" failonerror="yes" classname="com.zgs.thrift.test.server.Server"><br>            <classpath refid="master-classpath"><br>        </classpath></java><br>    </target><br><br>    <target name="run_client" description="Run client"><br>        <java fork="true" failonerror="yes" classname="com.zgs.thrift.test.client.Client"><br>            <classpath refid="master-classpath"><br>        </classpath></java><br>    </target><br><br></pathelement></property></property></property></project>
+
+<p>上面的工作完成后，就可以开始构建工程了。以管理员权限打开命令提示符，切换到 项目根目录。执行以下命令编译工程：</p>
+<pre><code>ant build
+</code></pre><p>直接编译可能会不成功，thrift文件也可以单独编译，ant build.xml文件中移除，只编译java</p>
+<pre><code>thrift -gen java -out /Users/zhouguangsheng/project/study/Thrift/thriftDemo/ /Users/zhouguangsheng/project/study/Thrift/thriftDemo/com/zgs/thrift/test/iface/ICalc.thrift
+</code></pre><p>-out参数为编译的java文件要存放的路径</p>
+<p>编译成功后，服务器和客户端相应的class文件就生成在了相应的目录中。下面就可以开始测试了。</p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>执行以下命令运行服务器。</p>
+<pre><code>ant run_server
+</code></pre><p>输出结果如下，可以看到输出了 Starting the server…，表明服务器已经启动。</p>
+<pre><code>Buildfile: G:\projects\java\calc\build.xml
+
+run_server:
+     [java] Starting the server...
+</code></pre><p>因为服务器在一个单独的窗口运行，为了测试客户端，需要打开另一个命令提示符，同样切换到 calc 目录。执行以下命令运行客户端：</p>
+<pre><code>ant run_client
+</code></pre><p>输出结果如下，可以看到返回了正确的结果：3 。</p>
+<pre><code>Buildfile: G:\projects\java\calc\build.xml
+
+run_client:
+     [java] Received 1
+     [java] 3
+
+BUILD SUCCESSFUL
+Total time: 0 seconds
+</code></pre>
+      
+      <div id="donate" class="donate">
+        <a id="github" href="https://github.com/zhgs" target="_blank" class="pos-f tr3" title="Github"></a>
+	      <div id="DonateText" class="tr3">Donate</div>
+	      <ul id="donateBox" class="list pos-f tr3">
+		      <li id="PayPal"><a href="" target="_blank">PayPal</a></li>
+		      <li id="BTC" data-footnote="Copy addres and show QRCode"><button id="BTCBn"  data-clipboard-target="#btc-key" alt="Copy to clipboard">Bitcoin</button></li>
+		      <li id="AliPay">AliPay</li>
+		      <li id="WeChat">WeChat</li>
+	      </ul>
+	      <div id="QRBox" class="pos-f left-100">
+		      <div id="BTCQR" class="MainBox" style="background-image: url()"></div>
+		      <div id="AliPayQR" class="MainBox" style="background-image: url(https://avatars2.githubusercontent.com/u/15274857?s=460&amp;v=4)"></div>
+		      <div id="WeChatQR" class="MainBox" style="background-image: url(https://avatars2.githubusercontent.com/u/15274857?s=460&amp;v=4)"></div>
+	      </div>
+	      <!-- Bitcoin 账号 -->
+	      <input id="btc-key" type="text" value="" readonly="readonly">
+      </div>
+    </div>
+    <footer class="article-footer">
+      <ul class="article-meta">
+        <li>
+          <span class="label">Published Date:</span>
+          <a href="/2017/07/17/Thrift java入门/" class="article-date">
+  <time datetime="2017-07-17T02:33:28.000Z" itemprop="datePublished">2017-07-17</time>
+</a>
+
+        </li>
+        
+        
+          <li>
+            <span class="label">Tag:</span>
+            
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/技术/">技术</a></li></ul>
+
+
+          </li>
+        
+        <hr/>
+      </ul>
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav" class="article-nav">
+  
+    <a href="/2018/03/16/why-write-Blogg/" id="article-nav-newer" class="article-nav-link-wrap newer">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          why write Blog?
+        
+      </div>
+    </a>
+  
+  
+    <span id="article-nav-older" class="article-nav-link-wrap older"></span>
+  
+</nav>
+
+
+  
+</article>
+
+
+
+
+
+
+      </div>
+      
+    <footer id="footer" class="post-footer footer">
+      
+      <hr/>
+      <div id="footerContent" class="footer-content">
+        <p>ipsum dolor sit amet, <strong>consectetur adipiscing elit.</strong> Fusce eget urna vitae velit <em>eleifend interdum at ac nisi. In nec ligula lacus. Cum sociis natoque</em> penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed eu cursus erat, ut dapibus quam. Post</p>
+
+
+      </div>
+    </footer>
+
+      
+
+
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/typing.js"></script>
+<!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
+
+
+
+
+
+
+
+    </div>
+  </body>
+</html>
