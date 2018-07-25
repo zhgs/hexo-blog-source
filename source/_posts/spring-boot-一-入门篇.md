@@ -41,11 +41,133 @@ java发展至今，经久不衰，我觉得spring和android起了很大的作用
 	![](spring-boot-一-入门篇/02.gif)
 
 
+spring boot自带tomcat容器的端口默认是8080，可以自行修改，关键配置为server.port=8081，也可用环境变量-Dserver.port=8081 原理参考[https://blog.csdn.net/zknxx/article/details/53433592](https://blog.csdn.net/zknxx/article/details/53433592)
+
+新增工程前建议先建一个普通的maven POM工程来管理后续的demo工程
+我的工程目录如下：
+![](spring-boot-一-入门篇/03.jpg)
+
+### 新建一个Controller
+代码如下
+
+	package org.zhgs.demo.springboot.controller;
+
+
+	import org.springframework.web.bind.annotation.RequestMapping;
+	import org.springframework.web.bind.annotation.RestController;
+	
+	@RestController
+	public class HelloWordController {
+	
+	    @RequestMapping("/hello")
+	    public String index(){
+	        return "hello spring boot!";
+	    }
+	}
+
+在新建项目后生成的xxxxApplication类中有main方法，在idea中右击-run，运行前可以在server中编辑vm options 修改`-Dserver.port=8081` 默认为8080; 运行后在浏览器中输入`http://localhost:8081/hello ` 输出内容`hello spring boot!" ` 就表示启动成功了 
+
+
+### 单元测试
+打开的src/test/下的测试入口，编写简单的http请求来测试；使用mockmvc进行，利用MockMvcResultHandlers.print()打印出执行结果。
+
+开始本章节时，需要先了解下mockMvc是什么，
+[mockmvc是什么？](https://www.cnblogs.com/lyy-2016/p/6122144.html)，掌握以下几个关键类的作用
+
+* MockMvcBuilder
+* MockMvc
+* RequestBuilder/MockMvcRequestBuilders
+* ResultActions
+* ResultMatcher/MockMvcResultMatchers
+
+测试代码
+
+	package org.zhgs.demo.springboot;
+	
+	import org.junit.Before;
+	import org.junit.Test;
+	import org.junit.runner.RunWith;
+	import org.springframework.boot.test.context.SpringBootTest;
+	import org.springframework.http.MediaType;
+	import org.springframework.test.context.junit4.SpringRunner;
+	import org.springframework.test.web.servlet.MockMvc;
+	import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+	import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+	import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+	import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+	import org.zhgs.demo.springboot.controller.HelloWordController;
+	
+	@RunWith(SpringRunner.class)
+	@SpringBootTest
+	public class SpringBootSimpleApplicationTests {
+	
+		private MockMvc mvc;
+	
+		@Before
+		public void setUp() throws Exception {
+			mvc = MockMvcBuilders.standaloneSetup(new HelloWordController()).build();
+		}
+	
+		@Test
+		public void contextLoads() throws Exception {
+			mvc.perform(MockMvcRequestBuilders.get("/hello").accept(MediaType.APPLICATION_JSON))
+					.andExpect(MockMvcResultMatchers.status().isOk())
+					.andDo(MockMvcResultHandlers.print())
+					.andReturn();
+		}
+	
+	}
+
+### 开发环境热部署
+热启动在正常开发项目中已经很常见了吧，虽然平时开发web项目过程中，改动项目启重启总是报错；但springBoot对调试支持很好，修改之后可以实时生效，需要添加以下的配置：
+
+	<dependencies>
+	
+		<!-- 添加以下依赖 -->
+    	<dependency>
+
+        <groupId>org.springframework.boot</groupId>
+
+        <artifactId>spring-boot-devtools</artifactId>
+
+        <optional>true</optional>
+
+	   </dependency>
+	
+	</dependencies>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<!-- 用于本机热部署调度 fork :  如果没有该项配置则devtools不会起作用，即应用不会restart -->
+				<configuration>
+					<fork>true</fork>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+该模块在完整的打包环境下运行的时候会被禁用。如果你使用java -jar启动应用或者用一个特定的classloader启动，它会认为这是一个“生产环境”。另外本机maven工程增加了util module，通用依赖放在了util下; 此功能建议调试的时候开启，不适合频繁的保存动作，反复的重启会影响开发效率
+
+注意：idea下可能会不生效，一般为以下几种情况
+
+* 检查<fork>true</fork>
+* idea未开启自动发布[开启方法](https://hacpai.com/article/1490191094543)
+
+## 总结
+>使用spring boot可以非常方便、快速搭建项目，使我们不用关心框架之间的兼容性，适用版本等各种问题，我们想使用任何东西，仅仅添加一个配置就可以，所以使用sping boot非常适合构建微服务
+
+从新增加项目上来说要比以往的配置方式简单的多，我最喜欢的特点是创建工程时能勾选式的把相关依赖初始化到工程里来，大大节约了我们的时间
 
 ## 参考资料
-* [牛博](https://www.cnblogs.com/ityouknow/p/5662753.html)
+感谢以下各位的开源分享
+
+* [大牛的博客](https://www.cnblogs.com/ityouknow/p/5662753.html)
 * [开源电子书 ityouknow](https://boot.ityouknow.com)
-* [官方文档](https://spring.io/projects/spring-boot#learn)
+* [官方文档](https://spring.io/projects/spring-boot#learn) （最好的教程就是官方文档）
 * spring boot入门视频
 
 	>链接: https://pan.baidu.com/s/1pL84paN 密码: mid4
